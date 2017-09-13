@@ -1,4 +1,6 @@
 import os
+import glob
+from PIL import Image
 import sys
 import traceback
 from mimetypes import guess_extension
@@ -52,7 +54,7 @@ def img_url_list(word):
     """
     using yahoo (this script can't use at google)
     """
-    url = 'http://image.search.yahoo.co.jp/search?n=80&p={}&search.x=1'.format(quote(word))
+    url = 'http://image.search.yahoo.co.jp/search?n=10&p={}&search.x=1'.format(quote(word))
     byte_content, _ = fetcher.fetch(url)
     structured_page = BeautifulSoup(byte_content.decode('UTF-8'), 'html.parser')
     img_link_elems = structured_page.find_all('a', attrs={'target': 'imagewin'})
@@ -60,6 +62,16 @@ def img_url_list(word):
     img_urls = list(set(img_urls))
     return img_urls
 
+def img_resize():
+    files = glob.glob('./data/*.jpg')
+
+    for f in files:
+        img = Image.open(f)
+        img_resize = img.resize((int(img.width/2), int(img.height/2)))
+        ftitle, fext = os.path.splitext(f)
+        img_resize.save(ftitle + '_half' + fext)
+
 if __name__ == '__main__':
     word = sys.argv[1]
     fetch_and_save_img(word)
+    img_resize()
